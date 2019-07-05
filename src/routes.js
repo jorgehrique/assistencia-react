@@ -6,7 +6,10 @@ import Notifications from "@material-ui/icons/Notifications";
 // core components/views for Admin layout
 import DashboardPage from "views/Dashboard/Dashboard.jsx";
 import UserProfile from "views/UserProfile/UserProfile.jsx";
+import OS from "views/OS/OS.jsx";
 import TableList from "views/TableList/TableList.jsx";
+//import TableList from "views/TableList/TableList.jsx";
+//import TableList from "views/TableList/TableList.jsx";
 import NotificationsPage from "views/Notifications/Notifications.jsx";
 
 const dashboardRoutes = [
@@ -21,7 +24,7 @@ const dashboardRoutes = [
     path: "/servicos",
     name: "Ordem de Serviços",
     icon: "content_paste",
-    component: TableList,
+    component: OS,
     layout: "/admin"
   },
   {
