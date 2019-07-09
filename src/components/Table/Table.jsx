@@ -11,37 +11,63 @@ import TableCell from "@material-ui/core/TableCell";
 import tableStyle from "assets/jss/material-dashboard-react/components/tableStyle.jsx";
 
 function CustomTable({ ...props }) {
-  const { classes, tableHead, tableData, tableHeaderColor } = props;
+  const { classes, tableHead, tableData, tableHeaderColor, itemActions } = props;
   return (
     <div className={classes.tableResponsive}>
       <Table className={classes.table}>
         {tableHead !== undefined ? (
           <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
             <TableRow className={classes.tableHeadRow}>
-              {tableHead.map((prop, key) => {
-                return (
-                  <TableCell
-                    className={classes.tableCell + " " + classes.tableHeadCell}
-                    key={key}
-                  >
-                    {prop}
-                  </TableCell>
-                );
-              })}
+              {
+                tableHead.map((prop, key) => {
+                  return (
+                    <TableCell
+                      className={classes.tableCell + " " + classes.tableHeadCell}
+                      key={key}
+                    >
+                      {prop}
+                    </TableCell>
+                  );
+                })
+              }
+              {
+                itemActions.map(item => {
+                  return item.visible ?
+                    (
+                      <TableCell
+                        className={classes.tableCell + " " + classes.tableHeadCell}>
+                        {item.header}
+                      </TableCell>
+                    ) : null;
+                })
+              }
             </TableRow>
           </TableHead>
         ) : null}
         <TableBody>
           {tableData.map((prop, key) => {
+            const itemId = prop[0];
             return (
               <TableRow key={key} className={classes.tableBodyRow}>
-                {prop.map((prop, key) => {
-                  return (
-                    <TableCell className={classes.tableCell} key={key}>
-                      {prop}
-                    </TableCell>
-                  );
-                })}
+                {
+                  prop.map((prop, key) => {
+                    return (
+                      <TableCell className={classes.tableCell} key={key}>
+                        {prop}
+                      </TableCell>
+                    );
+                  })
+                }
+                {
+                  itemActions.map(item => {
+                    return item.visible ?
+                      (
+                        <TableCell className={classes.tableCell}>
+                          <a onClick={item.onClick} id={itemId}>{item.labelText}</a>
+                        </TableCell>
+                      ) : null;
+                  })
+                }
               </TableRow>
             );
           })}
@@ -52,7 +78,8 @@ function CustomTable({ ...props }) {
 }
 
 CustomTable.defaultProps = {
-  tableHeaderColor: "gray"
+  tableHeaderColor: "gray",
+  itemActions: []
 };
 
 CustomTable.propTypes = {

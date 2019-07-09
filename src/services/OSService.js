@@ -1,15 +1,69 @@
-const ordemDeServicos = [
-    { id: 1, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo:"ORCAMENTO", data: "05/07/2019"},
-    { id: 2, cliente: "Jorge Henrique", aparelho: "J7 Neo", tipo:"GARANTIA", data: "25/05/2019"},
-    { id: 1, cliente: "Gabriel Leal Park", aparelho: "J5 Pro", tipo:"CONSERTO", data: "14/06/2019"},
-    { id: 1, cliente: "Jose Fiel Feitosa", aparelho: "G530", tipo:"CONSERTO", data: "05/07/2019"},
-    { id: 1, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo:"ORCAMENTO", data: "05/07/2019"},
-    { id: 1, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo:"ORCAMENTO", data: "05/07/2019"},
-    { id: 1, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo:"ORCAMENTO", data: "05/07/2019"},
+let ordemDeServicos = [
+    { id: 1, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo: "ORCAMENTO", data: "05/07/2019" },
+    { id: 2, cliente: "Jorge Henrique", aparelho: "J7 Neo", tipo: "GARANTIA", data: "25/05/2019" },
+    { id: 3, cliente: "Gabriel Leal Park", aparelho: "J5 Pro", tipo: "CONSERTO", data: "14/06/2019" },
+    { id: 4, cliente: "Jose Fiel Feitosa", aparelho: "G530", tipo: "CONSERTO", data: "05/07/2019" },
+    { id: 6, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo: "ORCAMENTO", data: "05/07/2019" },
+    { id: 7, cliente: "Samuel Santos", aparelho: "Redmi Note 6", tipo: "ORCAMENTO", data: "05/07/2019" },
 ];
 
-const buscarOrdens = () => ordemDeServicos.map(o => Object.values(o));
+const cabecalho = ["#", "Cliente", "Aparelho", "Ordem", "Data"];
+const tipoOrdens = ["Conserto", "Orçamento", "Garantia", "Avaliação"];
+
+const buscarOrdens = () => {
+    return new Promise((resolve, reject) => {
+        // busca na api 
+        const ordens = ordemDeServicos.map(Object.values);
+        resolve(ordens);
+    });
+};
+
+const buscarCabecalho = () => {
+    return new Promise((resolve, reject) => {
+        resolve(cabecalho);
+    });
+};
+const buscarTipoOrdens = () => {
+    return new Promise((resolve, reject) => {
+        resolve(tipoOrdens);
+    });
+};
+
+const salvarOrdem = ordem => {
+    return new Promise((resolve, reject) => {
+        // envia para api e retorna inserido
+        ordem.id = 8;
+        ordem.data = '09/07/2019';
+        ordemDeServicos.push(ordem);
+        resolve(ordem);
+        //se der errado: reject
+    })
+};
+
+const editarOrdem = ordem => {
+    return new Promise((resolve, reject) => {
+        const ordens = ordemDeServicos.filter(item => item.id != ordem.id);
+        ordens.push(ordem);
+        ordemDeServicos = ordens;
+
+        resolve(ordem);
+    });
+};
+
+const excluirOrdem = ordem => {
+    return new Promise((resolve, reject) => {
+        const ordens = ordemDeServicos.filter(item => item.id != ordem.id);
+        ordemDeServicos = ordens;
+
+        resolve(ordem);
+    });
+};
 
 export {
-    buscarOrdens
+    buscarOrdens,
+    buscarCabecalho,
+    buscarTipoOrdens,
+    salvarOrdem,
+    editarOrdem,
+    excluirOrdem,
 }

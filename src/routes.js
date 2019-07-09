@@ -41,7 +41,13 @@ const dashboardRoutes = [
     component: TableList,
     layout: "/admin"
   },
-
+  {
+    path: "/precos",
+    name: "Tabela de Preços",
+    icon: "content_paste",
+    component: TableList,
+    layout: "/admin"
+  },
   {
     path: "/estoque",
     name: "Estoque",
