@@ -128,7 +128,7 @@ class OrdemDeServico extends React.Component {
             </CardHeader>
             <CardBody>
               <GridContainer>
-                <GridItem xs={12} sm={12} md={5}>
+                <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="Cliente"
                     id="cliente"
@@ -140,7 +140,7 @@ class OrdemDeServico extends React.Component {
                     }}
                   />
                 </GridItem>
-                <GridItem xs={12} sm={12} md={3}>
+                <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="Aparelho"
                     id="aparelho"
@@ -277,7 +277,7 @@ class OrdemDeServico extends React.Component {
                 tableHeaderColor="primary"
                 tableHead={this.state.cabecalho}
                 tableData={this.state.ordens}
-                itemActions={[
+                tableActions={[
                   {
                     labelText: 'imprimir',
                     header: 'Imprimir',

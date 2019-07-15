@@ -8,8 +8,7 @@ import DashboardPage from "views/Dashboard/Dashboard.jsx";
 import UserProfile from "views/UserProfile/UserProfile.jsx";
 import OS from "views/OS/OS.jsx";
 import TableList from "views/TableList/TableList.jsx";
-//import TableList from "views/TableList/TableList.jsx";
-//import TableList from "views/TableList/TableList.jsx";
+import Cliente from "views/Cliente/Cliente.jsx";
 import NotificationsPage from "views/Notifications/Notifications.jsx";
 
 const dashboardRoutes = [
@@ -26,17 +25,17 @@ const dashboardRoutes = [
     icon: "content_paste",
     component: OS,
     layout: "/admin"
+  },  
+  {
+    path: "/clientes",
+    name: "Clientes",
+    icon: "content_paste",
+    component: Cliente,
+    layout: "/admin"
   },
   {
     path: "/caixa",
     name: "Caixa",
-    icon: "content_paste",
-    component: TableList,
-    layout: "/admin"
-  },
-  {
-    path: "/clientes",
-    name: "Clientes",
     icon: "content_paste",
     component: TableList,
     layout: "/admin"
