@@ -6,6 +6,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 // core components
 import GridItem from "components/Grid/GridItem.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
+import Snackbar from "components/Snackbar/Snackbar.jsx";
 import Table from "components/Table/Table.jsx";
 import Card from "components/Card/Card.jsx";
 import CardHeader from "components/Card/CardHeader.jsx";
@@ -61,27 +62,24 @@ class OrdemDeServico extends React.Component {
       tipoOrdens: [],
       tableOrdens: [],
       form: {},
+      notification: {}
     }
   }
 
-  salvarOnClick = () => {
+  salvarHandle = () => {
     salvarOrdem(this.state.form)
       .then(ordem => {
+        this.notification(`Ordem #${ordem.id} foi salva`, 'success');
         this.updateOrdens();
       })
-      .then(() => {
-        // notificacao de sucesso
-        console.log("Ordem inserida com sucesso");
-      })
       .catch(() => {
-        // notificacao de erro
-        console.log("Erro ao salvar ordem");
+        this.notification('Erro ao salvar ordem', 'danger');
       })
   }
 
   updateOrdens = () => {
     buscarOrdens()
-      .then(ordens => {        
+      .then(ordens => {
         const tableOrdens = ordens.map(os => {
           return Object.values({
             id: os.id,
@@ -94,7 +92,7 @@ class OrdemDeServico extends React.Component {
         this.setState({ tableOrdens });
       })
       .catch(erro => {
-        console.log(`Erro ao atualizar a tabela de ordens`);
+        this.notification('Erro ao atualizar a tabela de ordens', 'danger');
       });
   }
 
@@ -102,6 +100,21 @@ class OrdemDeServico extends React.Component {
     let form = this.state.form;
     form[event.target.id] = event.target.value;
     this.setState({ form });
+  }
+
+  notification = (message, color) => {
+    this.setState({
+      notification: {
+        color,
+        message,
+        visible: true
+      }
+    });
+    setTimeout(() => this.setState({
+      notification: {
+        visible: false
+      }
+    }), 3000);
   }
 
   componentDidMount() {
@@ -112,7 +125,7 @@ class OrdemDeServico extends React.Component {
         this.setState({ cabecalho });
       })
       .catch(erro => {
-        console.log('Erro ao buscar cabecalho');
+        this.notification('Erro ao buscar cabeçalho', 'danger');
       });
 
     buscarTipoOrdens()
@@ -121,7 +134,7 @@ class OrdemDeServico extends React.Component {
         this.setState({ tipoOrdens: tipos });
       })
       .catch(erro => {
-        console.log('Erro ao buscar tipos de ordens');
+        this.notification('Erro ao buscar os tipos de ordens', 'danger');
       });
   }
 
@@ -129,6 +142,14 @@ class OrdemDeServico extends React.Component {
     const { classes } = this.props;
     return (
       <GridContainer>
+        <Snackbar
+          place="tr"
+          color={this.state.notification.color}
+          message={this.state.notification.message}
+          open={this.state.notification.visible}
+          closeNotification={() => this.setState({ notification: { visible: false } })}
+          close
+        />
         <GridItem xs={12} sm={12} md={12}>
           <Card>
             <CardHeader color="primary">
@@ -271,7 +292,7 @@ class OrdemDeServico extends React.Component {
               </GridContainer>
               <GridContainer>
                 <GridItem xs={12} sm={12} md={12}>
-                  <Button color="primary" onClick={this.salvarOnClick}>Salvar</Button>
+                  <Button color="primary" onClick={this.salvarHandle}>Salvar</Button>
                 </GridItem>
               </GridContainer>
             </CardBody>
