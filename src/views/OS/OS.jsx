@@ -57,9 +57,9 @@ class OrdemDeServico extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      ordens: [],
       cabecalho: [],
       tipoOrdens: [],
+      tableOrdens: [],
       form: {},
     }
   }
@@ -81,8 +81,17 @@ class OrdemDeServico extends React.Component {
 
   updateOrdens = () => {
     buscarOrdens()
-      .then(ordens => {
-        this.setState({ ordens });
+      .then(ordens => {        
+        const tableOrdens = ordens.map(os => {
+          return Object.values({
+            id: os.id,
+            cliente: os.cliente.nome,
+            aparelho: os.aparelho,
+            tipoOrdem: os.tipoOrdem,
+            data: os.dataCricao
+          })
+        });
+        this.setState({ tableOrdens });
       })
       .catch(erro => {
         console.log(`Erro ao atualizar a tabela de ordens`);
@@ -276,7 +285,7 @@ class OrdemDeServico extends React.Component {
               <Table
                 tableHeaderColor="primary"
                 tableHead={this.state.cabecalho}
-                tableData={this.state.ordens}
+                tableData={this.state.tableOrdens}
                 tableActions={[
                   {
                     labelText: 'imprimir',

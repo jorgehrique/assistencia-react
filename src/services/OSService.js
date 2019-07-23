@@ -10,11 +10,13 @@ let ordemDeServicos = [
 const cabecalho = ["#", "Cliente", "Aparelho", "Ordem", "Data"];
 const tipoOrdens = ["Conserto", "Orçamento", "Garantia", "Avaliação"];
 
+const urlBase = 'http://localhost:8080';
+
 const buscarOrdens = () => {
     return new Promise((resolve, reject) => {
-        // busca na api 
-        const ordens = ordemDeServicos.map(Object.values);
-        resolve(ordens);
+        fetch(urlBase + '/ordens')
+        .then(res => resolve(res.json()))
+        .catch(err => reject(err));
     });
 };
 
