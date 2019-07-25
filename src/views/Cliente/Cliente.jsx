@@ -11,10 +11,18 @@ import Card from "components/Card/Card.jsx";
 import CardHeader from "components/Card/CardHeader.jsx";
 import CardBody from "components/Card/CardBody.jsx";
 import CustomInput from "components/CustomInput/CustomInput.jsx";
+import Snackbar from "components/Snackbar/Snackbar.jsx";
 import CustomSelect from "components/CustomSelect/CustomSelect.jsx";
 import Button from "components/CustomButtons/Button.jsx";
 
+import {
+  buscarClientes, buscarClientePorId,
+  salvarCliente, editarCliente, excluirCliente
+}
+  from "../../services/ClienteService";
+
 import { EventEmitter } from "events";
+import { parseConfigFileTextToJson } from "typescript";
 
 const styles = {
   cardCategoryWhite: {
@@ -51,40 +59,131 @@ class Cliente extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      extraTelefoneFields: 2,
-      form: {}
+      form: {
+        endereco: {},
+        telefones: []
+      },
+      clientes: [],
+      cabecalho: [],
+      tableClientes: [],
+      notification: {},
     };
   }
 
   componentDidMount() {
-
+    this.updateClientes();
   }
 
-  renderExtraTelefoneField() {
-    let fields;
-    for (let i = 0; this.state.extraTelefoneFields; i++) {
-      fields += (
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={4}>
-            <CustomInput
-              labelText="Telefone"
-              id={"telefone" + i}
-              formControlProps={{
-                fullWidth: true
-              }}
-            />
-          </GridItem>
-        </GridContainer>
-      )
+  notification = (message, color) => {
+    this.setState({
+      notification: {
+        color,
+        message,
+        visible: true
+      }
+    });
+
+    setTimeout(() => this.setState({
+      notification: {
+        message: '...',
+        color: 'success',
+        visible: false
+      }
+    }), 3000);
+  }
+
+  updateFormState = event => {
+    let form = this.state.form;
+    form[event.target.id] = event.target.value;
+    this.setState({ form });
+  }
+
+  updateEnderecoFields = event => {
+    let form = this.state.form;
+    form.endereco[event.target.id] = event.target.value;
+    this.setState({ form });
+  }
+
+  updateTelefoneField = event => {
+    let form = this.state.form;
+    const { id, value } = event.target;
+    if (id == 'telefone0') form.telefones[0] = value;
+    else if (id == 'telefone1') form.telefones[1] = value;
+    this.setState({ form });
+  }
+
+  updateClientes = () => {
+    buscarClientes()
+      .then(clientes => {
+        const tableClientes = clientes.map(c => {
+          return Object.values({
+            id: c.id,
+            nome: c.nome,
+            cpf: c.cpf
+          });
+        });
+
+        this.setState({
+          tableClientes,
+          cabecalho: ['Id', 'Nome', 'CPF']
+        })
+      })
+      .catch(erro => console.log(erro));
+  }
+
+  salvarHandle = () => {
+    const { form } = this.state;
+    if (form.editar) {
+      editarCliente(form.id, form)
+        .then(cliente => {
+          this.updateClientes();
+          this.notification(`Cliente ${cliente.nome} foi editado`, 'success');
+        })
+        .catch(erro => this.notification(`Erro ao editar o cliente ${form.nome}`, 'danger'));
+
+    } else {
+      salvarCliente(form)
+        .then(cliente => {
+          this.updateClientes();
+          this.notification(`Cliente ${cliente.nome} foi salvo`, 'success');
+        })
+        .catch(erro => this.notification(`Erro ao salvar o cliente ${form.nome}`, 'danger'));
     }
-    return fields;
   }
 
+  limparHandle = () => {
+    this.setState({
+      form:
+      {
+        editar: false,
+        id: null,
+        nome: '',
+        cpf: '',
+        hasCNPJ: '',
+        email: '',
+        endereco: {
+          endereco: '',
+          bairro: '',
+          cidade: '',
+          complemento: ''
+        },
+        telefones: ['', '']
+      }
+    });
+  }
 
   render() {
     const { classes } = this.props;
     return (
       <GridContainer>
+        <Snackbar
+          place="tr"
+          color={this.state.notification.color}
+          message={this.state.notification.message}
+          open={this.state.notification.visible}
+          closeNotification={() => this.setState({ notification: { visible: false } })}
+          close
+        />
         <GridItem xs={12} sm={12} md={12}>
           <Card>
             <CardHeader color="primary">
@@ -100,6 +199,10 @@ class Cliente extends React.Component {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.updateFormState,
+                      value: this.state.form.nome
+                    }}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
@@ -109,6 +212,10 @@ class Cliente extends React.Component {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.updateFormState,
+                      value: this.state.form.cpf
+                    }}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
@@ -117,6 +224,10 @@ class Cliente extends React.Component {
                     id="email"
                     formControlProps={{
                       fullWidth: true
+                    }}
+                    inputProps={{
+                      onChange: this.updateFormState,
+                      value: this.state.form.email
                     }}
                   />
 
@@ -130,6 +241,10 @@ class Cliente extends React.Component {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.updateEnderecoFields,
+                      value: this.state.form.endereco.endereco
+                    }}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
@@ -138,6 +253,10 @@ class Cliente extends React.Component {
                     id="bairro"
                     formControlProps={{
                       fullWidth: true
+                    }}
+                    inputProps={{
+                      onChange: this.updateEnderecoFields,
+                      value: this.state.form.endereco.bairro
                     }}
                   />
                 </GridItem>
@@ -148,6 +267,10 @@ class Cliente extends React.Component {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.updateEnderecoFields,
+                      value: this.state.form.endereco.cidade
+                    }}
                   />
                 </GridItem>
               </GridContainer>
@@ -155,17 +278,36 @@ class Cliente extends React.Component {
                 <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="Telefone"
-                    id="telefone"
+                    id="telefone0"
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.updateTelefoneField,
+                      value: this.state.form.telefones[0]
+                    }}
                   />
-                  <span>Add</span>
+                </GridItem>
+                <GridItem xs={12} sm={12} md={4}>
+                  <CustomInput
+                    labelText="Telefone"
+                    id="telefone1"
+                    formControlProps={{
+                      fullWidth: true
+                    }}
+                    inputProps={{
+                      onChange: this.updateTelefoneField,
+                      value: this.state.form.telefones[1]
+                    }}
+                  />
                 </GridItem>
               </GridContainer>
               <GridContainer>
-                <GridItem xs={12} sm={12} md={12}>
-                  <Button color="primary">Salvar</Button>
+                <GridItem xs={2} sm={2} md={2}>
+                  <Button color="primary" onClick={this.salvarHandle}>Salvar</Button>
+                </GridItem>
+                <GridItem xs={3} sm={3} md={3}>
+                  <Button color="primary" onClick={this.limparHandle}>Limpar</Button>
                 </GridItem>
               </GridContainer>
             </CardBody>
@@ -178,9 +320,54 @@ class Cliente extends React.Component {
             <CardBody>
               <Table
                 tableHeaderColor="primary"
-                tableHead={[]}
-                tableData={[]}
-                tableActions={[]}
+                tableHead={this.state.cabecalho}
+                tableData={this.state.tableClientes}
+                tableActions={
+                  [
+                    {
+                      labelText: 'ver',
+                      header: 'Detalhes',
+                      visible: true,
+                      onClick: event => {
+                        const { id } = event.target;
+                        console.log(`modal: exibir cliente de id #${id}`);
+                      }
+                    },
+                    {
+                      labelText: 'editar',
+                      header: 'Editar',
+                      visible: true,
+                      onClick: event => {
+                        const { id } = event.target;
+                        buscarClientePorId(id)
+                          .then(cliente => {
+                            this.setState({
+                              form: { editar: true, ...cliente }
+                            });
+                          })
+                          .catch(erro => {
+                            this.notification('Erro ao buscar cliente para edição', 'danger')
+                          });
+                      }
+                    },
+                    {
+                      labelText: 'excluir',
+                      header: 'Excluir',
+                      visible: true,
+                      onClick: event => {
+                        const { id } = event.target;
+                        excluirCliente(id)
+                          .then(cliente => {
+                            this.updateClientes();
+                            this.notification(`Cliente ${cliente.nome} foi deletado`, 'success');
+                          })
+                          .catch(erro => {
+                            this.notification(`Erro ao deletar o cliente #${id}`, 'danger');
+                          });
+                      }
+                    }
+                  ]
+                }
               />
             </CardBody>
           </Card>
