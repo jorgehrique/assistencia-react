@@ -12,8 +12,8 @@ import CardHeader from "components/Card/CardHeader.jsx";
 import CardBody from "components/Card/CardBody.jsx";
 import CustomInput from "components/CustomInput/CustomInput.jsx";
 import Snackbar from "components/Snackbar/Snackbar.jsx";
-import CustomSelect from "components/CustomSelect/CustomSelect.jsx";
 import Button from "components/CustomButtons/Button.jsx";
+// import CustomSelect from "components/CustomSelect/CustomSelect.jsx";
 
 import {
   buscarClientes, buscarClientePorId,
@@ -21,8 +21,8 @@ import {
 }
   from "../../services/ClienteService";
 
-import { EventEmitter } from "events";
-import { parseConfigFileTextToJson } from "typescript";
+// import { EventEmitter } from "events";
+// import { parseConfigFileTextToJson } from "typescript";
 
 const styles = {
   cardCategoryWhite: {
@@ -63,15 +63,20 @@ class Cliente extends React.Component {
         endereco: {},
         telefones: []
       },
-      clientes: [],
       cabecalho: [],
-      tableClientes: [],
+      clientes: [],
       notification: {},
     };
   }
 
   componentDidMount() {
     this.updateClientes();
+  }
+
+  handleScrollToStats = () => {
+    window.scrollTo({
+      top: 0
+    })
   }
 
   notification = (message, color) => {
@@ -114,8 +119,9 @@ class Cliente extends React.Component {
 
   updateClientes = () => {
     buscarClientes()
-      .then(clientes => {
-        const tableClientes = clientes.map(c => {
+      .then(response => {
+        const { content } = response;
+        const clientes = content.map(c => {
           return Object.values({
             id: c.id,
             nome: c.nome,
@@ -124,7 +130,7 @@ class Cliente extends React.Component {
         });
 
         this.setState({
-          tableClientes,
+          clientes,
           cabecalho: ['Id', 'Nome', 'CPF']
         })
       })
@@ -149,6 +155,7 @@ class Cliente extends React.Component {
         })
         .catch(erro => this.notification(`Erro ao salvar o cliente ${form.nome}`, 'danger'));
     }
+    this.limparHandle();
   }
 
   limparHandle = () => {
@@ -321,7 +328,7 @@ class Cliente extends React.Component {
               <Table
                 tableHeaderColor="primary"
                 tableHead={this.state.cabecalho}
-                tableData={this.state.tableClientes}
+                tableData={this.state.clientes}
                 tableActions={
                   [
                     {
@@ -338,6 +345,7 @@ class Cliente extends React.Component {
                       header: 'Editar',
                       visible: true,
                       onClick: event => {
+                        this.limparHandle();
                         const { id } = event.target;
                         buscarClientePorId(id)
                           .then(cliente => {
@@ -348,13 +356,14 @@ class Cliente extends React.Component {
                           .catch(erro => {
                             this.notification('Erro ao buscar cliente para edição', 'danger')
                           });
+                          this.handleScrollToStats();
                       }
                     },
                     {
                       labelText: 'excluir',
                       header: 'Excluir',
                       visible: true,
-                      onClick: event => {
+                      onClick: event => {                        
                         const { id } = event.target;
                         excluirCliente(id)
                           .then(cliente => {
@@ -364,6 +373,7 @@ class Cliente extends React.Component {
                           .catch(erro => {
                             this.notification(`Erro ao deletar o cliente #${id}`, 'danger');
                           });
+                          this.limparHandle();
                       }
                     }
                   ]

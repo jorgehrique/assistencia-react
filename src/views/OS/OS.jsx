@@ -14,6 +14,9 @@ import CardBody from "components/Card/CardBody.jsx";
 import CustomInput from "components/CustomInput/CustomInput.jsx";
 import CustomSelect from "components/CustomSelect/CustomSelect.jsx";
 import Button from "components/CustomButtons/Button.jsx";
+import ClienteInput from "components/CustomInput/AutoCompleteInput";
+
+import { buscarClientes, buscarClientesPorNome } from "../../services/ClienteService";
 
 import {
   buscarOrdens, buscarCabecalho, buscarTipoOrdens, salvarOrdem,
@@ -62,7 +65,8 @@ class OrdemDeServico extends React.Component {
       tipoOrdens: [],
       tableOrdens: [],
       form: {},
-      notification: {}
+      notification: {},
+      clientesAutoComplete: []
     }
   }
 
@@ -79,8 +83,9 @@ class OrdemDeServico extends React.Component {
 
   updateOrdens = () => {
     buscarOrdens()
-      .then(ordens => {
-        const tableOrdens = ordens.map(os => {
+      .then(response => {
+        const { content } = response;
+        const tableOrdens = content.map(os => {
           return Object.values({
             id: os.id,
             cliente: os.cliente.nome,
@@ -100,6 +105,10 @@ class OrdemDeServico extends React.Component {
     let form = this.state.form;
     form[event.target.id] = event.target.value;
     this.setState({ form });
+  }
+
+  autoCompleteHandle = event => {
+    console.log('auto complete handle: ' + event.target.id + ' - ' + event.target.value);
   }
 
   notification = (message, color) => {
@@ -136,6 +145,15 @@ class OrdemDeServico extends React.Component {
       .catch(erro => {
         this.notification('Erro ao buscar os tipos de ordens', 'danger');
       });
+
+    buscarClientes()
+      .then(response => {
+        const { content } = response;
+        const clientesAutoComplete = content.map(c => {
+          return { label: c.nome }
+        });
+        this.setState({ clientesAutoComplete });
+      })
   }
 
   render() {
@@ -159,14 +177,14 @@ class OrdemDeServico extends React.Component {
             <CardBody>
               <GridContainer>
                 <GridItem xs={12} sm={12} md={4}>
-                  <CustomInput
+                  <ClienteInput
                     labelText="Cliente"
                     id="cliente"
+                    data={this.state.clientesAutoComplete}
+                    placeholder="Busque um cliente"
+                    itemClick={this.autoCompleteHandle}
                     formControlProps={{
                       fullWidth: true
-                    }}
-                    inputProps={{
-                      onChange: this.updateFormState
                     }}
                   />
                 </GridItem>
