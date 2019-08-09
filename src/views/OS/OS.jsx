@@ -16,15 +16,13 @@ import CustomSelect from "components/CustomSelect/CustomSelect.jsx";
 import Button from "components/CustomButtons/Button.jsx";
 import ClienteInput from "components/CustomInput/AutoCompleteInput";
 
-import { buscarClientes, buscarClientesPorNome } from "../../services/ClienteService";
+import { buscarClientes } from "../../services/ClienteService";
 
 import {
   buscarOrdens, buscarCabecalho, buscarTipoOrdens, salvarOrdem,
   editarOrdem, excluirOrdem
 }
   from "../../services/OSService";
-
-import { EventEmitter } from "events";
 
 const styles = {
   cardCategoryWhite: {
@@ -63,7 +61,7 @@ class OrdemDeServico extends React.Component {
     this.state = {
       cabecalho: [],
       tipoOrdens: [],
-      tableOrdens: [],
+      ordens: [],
       form: {},
       notification: {},
       clientesAutoComplete: []
@@ -71,21 +69,22 @@ class OrdemDeServico extends React.Component {
   }
 
   salvarHandle = () => {
-    salvarOrdem(this.state.form)
-      .then(ordem => {
-        this.notification(`Ordem #${ordem.id} foi salva`, 'success');
-        this.updateOrdens();
-      })
-      .catch(() => {
-        this.notification('Erro ao salvar ordem', 'danger');
-      })
+    console.log(this.state.form);
+    // salvarOrdem(this.state.form)
+    //   .then(ordem => {
+    //     this.notification(`Ordem #${ordem.id} foi salva`, 'success');
+    //     this.updateOrdens();
+    //   })
+    //   .catch(() => {
+    //     this.notification('Erro ao salvar ordem', 'danger');
+    //   })
   }
 
   updateOrdens = () => {
     buscarOrdens()
       .then(response => {
         const { content } = response;
-        const tableOrdens = content.map(os => {
+        const ordens = content.map(os => {
           return Object.values({
             id: os.id,
             cliente: os.cliente.nome,
@@ -94,10 +93,11 @@ class OrdemDeServico extends React.Component {
             data: os.dataCricao
           })
         });
-        this.setState({ tableOrdens });
+        this.setState({ ordens });
       })
-      .catch(erro => {
+      .catch(error => {
         this.notification('Erro ao atualizar a tabela de ordens', 'danger');
+        console.error(error);
       });
   }
 
@@ -105,10 +105,6 @@ class OrdemDeServico extends React.Component {
     let form = this.state.form;
     form[event.target.id] = event.target.value;
     this.setState({ form });
-  }
-
-  autoCompleteHandle = event => {
-    console.log('auto complete handle: ' + event.target.id + ' - ' + event.target.value);
   }
 
   notification = (message, color) => {
@@ -180,11 +176,12 @@ class OrdemDeServico extends React.Component {
                   <ClienteInput
                     labelText="Cliente"
                     id="cliente"
-                    data={this.state.clientesAutoComplete}
-                    placeholder="Busque um cliente"
                     itemClick={this.autoCompleteHandle}
                     formControlProps={{
                       fullWidth: true
+                    }}
+                    inputProps={{
+                      onChange: this.updateFormState
                     }}
                   />
                 </GridItem>
@@ -209,7 +206,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: console.log
                     }}
                     items={this.state.tipoOrdens}
                   />
@@ -324,7 +321,7 @@ class OrdemDeServico extends React.Component {
               <Table
                 tableHeaderColor="primary"
                 tableHead={this.state.cabecalho}
-                tableData={this.state.tableOrdens}
+                tableData={this.state.ordens}
                 tableActions={[
                   {
                     labelText: 'imprimir',

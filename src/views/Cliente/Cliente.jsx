@@ -356,24 +356,25 @@ class Cliente extends React.Component {
                           .catch(erro => {
                             this.notification('Erro ao buscar cliente para edição', 'danger')
                           });
-                          this.handleScrollToStats();
+                        this.handleScrollToStats();
                       }
                     },
                     {
                       labelText: 'excluir',
                       header: 'Excluir',
                       visible: true,
-                      onClick: event => {                        
+                      onClick: event => {
                         const { id } = event.target;
                         excluirCliente(id)
-                          .then(cliente => {
+                          .then(() => {
                             this.updateClientes();
-                            this.notification(`Cliente ${cliente.nome} foi deletado`, 'success');
+                            this.notification(`Cliente #${id} foi deletado`, 'success');
                           })
                           .catch(erro => {
+                            console.log(erro);
                             this.notification(`Erro ao deletar o cliente #${id}`, 'danger');
                           });
-                          this.limparHandle();
+                        this.limparHandle();
                       }
                     }
                   ]
