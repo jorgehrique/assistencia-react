@@ -30,18 +30,22 @@ export default class AutoCompleteInput extends React.Component {
             <ReactAutoComplete
                 items={this.state.items}
                 shouldItemRender={(item, value) => item.nome.toLowerCase().indexOf(value.toLowerCase()) > -1}
-                getItemValue={item => `[${item.id}] - ${item.nome.toUpperCase()}`}
+                getItemValue={item => `${item.id}-${item.nome}`}
                 renderItem={(item, highlighted) =>
                     <div
                         key={item.id}
                         style={{ backgroundColor: highlighted ? '#eee' : 'transparent' }}
                     >
-                        {`[${item.id}] - ${item.nome.toUpperCase()}`}
+                        {`${item.nome.toUpperCase()}`}
                     </div>
                 }
                 value={this.state.value}
                 onChange={this.onChangeHandle}
-                onSelect={value => this.setState({ value })}
+                onSelect={value => {
+                    const arr = value.split('-');
+                    this.props.getId(arr[0]);
+                    this.setState({ value: arr[1] })
+                }}
             />
         )
     }

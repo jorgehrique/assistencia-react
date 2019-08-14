@@ -44,6 +44,7 @@ function CustomSelect({ ...props }) {
     });
 
     function handleChange(event) {
+        inputProps.onChange(event);
         setValues(oldValues => ({
             ...oldValues,
             [event.target.name]: event.target.value,
@@ -71,11 +72,8 @@ function CustomSelect({ ...props }) {
                     }}
                     id={id}
                     value={values.value}
-                    onChange={handleChange}                    
-                    inputProps={{
-                        name: 'value',
-                        id,
-                    }}
+                    onChange={handleChange}
+                    inputProps={{ name: 'value', id }}
                 >
                     {items.map(e => <MenuItem value={e.value}>{e.label}</MenuItem>)}
                 </Select>

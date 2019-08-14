@@ -63,7 +63,9 @@ function CustomTable({ ...props }) {
                     return item.visible ?
                       (
                         <TableCell className={classes.tableCell}>
-                          <a onClick={item.onClick} id={itemId}>{item.labelText}</a>
+                          <div onClick={item.onClick} id={itemId}>
+                            {item.render()}
+                          </div>
                         </TableCell>
                       ) : null;
                   })

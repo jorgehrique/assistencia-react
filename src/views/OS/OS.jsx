@@ -7,7 +7,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import GridItem from "components/Grid/GridItem.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
 import Snackbar from "components/Snackbar/Snackbar.jsx";
-import Table from "components/Table/Table.jsx";
+import OSTable from "components/Table/OSTable.jsx";
 import Card from "components/Card/Card.jsx";
 import CardHeader from "components/Card/CardHeader.jsx";
 import CardBody from "components/Card/CardBody.jsx";
@@ -20,7 +20,7 @@ import { buscarClientes } from "../../services/ClienteService";
 
 import {
   buscarOrdens, buscarCabecalho, buscarTipoOrdens, salvarOrdem,
-  editarOrdem, excluirOrdem
+  editarOrdem, excluirOrdem, dateConverter
 }
   from "../../services/OSService";
 
@@ -70,14 +70,14 @@ class OrdemDeServico extends React.Component {
 
   salvarHandle = () => {
     console.log(this.state.form);
-    // salvarOrdem(this.state.form)
-    //   .then(ordem => {
-    //     this.notification(`Ordem #${ordem.id} foi salva`, 'success');
-    //     this.updateOrdens();
-    //   })
-    //   .catch(() => {
-    //     this.notification('Erro ao salvar ordem', 'danger');
-    //   })
+    salvarOrdem(this.state.form)
+      .then(ordem => {
+        this.notification(`Ordem #${ordem.id} foi salva`, 'success');
+        this.updateOrdens();
+      })
+      .catch(() => {
+        this.notification('Erro ao salvar ordem', 'danger');
+      })
   }
 
   updateOrdens = () => {
@@ -90,9 +90,10 @@ class OrdemDeServico extends React.Component {
             cliente: os.cliente.nome,
             aparelho: os.aparelho,
             tipoOrdem: os.tipoOrdem,
-            data: os.dataCricao
+            data: dateConverter(os.dataCriacao)
           })
         });
+        console.log(ordens);
         this.setState({ ordens });
       })
       .catch(error => {
@@ -101,10 +102,9 @@ class OrdemDeServico extends React.Component {
       });
   }
 
-  updateFormState = event => {
-    let form = this.state.form;
-    form[event.target.id] = event.target.value;
-    this.setState({ form });
+  handleChange = field => e => {
+    const { form } = this.state;
+    this.setState({ form: { ...form, [field]: e.target.value } });
   }
 
   notification = (message, color) => {
@@ -176,12 +176,12 @@ class OrdemDeServico extends React.Component {
                   <ClienteInput
                     labelText="Cliente"
                     id="cliente"
-                    itemClick={this.autoCompleteHandle}
+                    getId={id => {
+                      const { form } = this.state;
+                      this.setState({ form: { cliente: { id: id } } });
+                    }}
                     formControlProps={{
                       fullWidth: true
-                    }}
-                    inputProps={{
-                      onChange: this.updateFormState
                     }}
                   />
                 </GridItem>
@@ -193,7 +193,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: this.handleChange('aparelho')
                     }}
                   />
                 </GridItem>
@@ -206,7 +206,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: console.log
+                      onChange: this.handleChange('tipoOrdem')
                     }}
                     items={this.state.tipoOrdens}
                   />
@@ -216,12 +216,12 @@ class OrdemDeServico extends React.Component {
                 <GridItem xs={12} sm={12} md={4}>
                   <CustomInput
                     labelText="Descriçâo do problema"
-                    id="problema"
+                    id="descricao"
                     formControlProps={{
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: this.handleChange('descricao')
                     }}
                   />
                 </GridItem>
@@ -233,7 +233,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: this.handleChange('laudo')
                     }}
                   />
                 </GridItem>
@@ -245,7 +245,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: this.handleChange('observacao')
                     }}
                   />
                 </GridItem>
@@ -259,7 +259,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: this.handleChange('imei1')
                     }}
                   />
                 </GridItem>
@@ -271,7 +271,7 @@ class OrdemDeServico extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState
+                      onChange: this.handleChange('imei2')
                     }}
                   />
                 </GridItem>
@@ -284,6 +284,9 @@ class OrdemDeServico extends React.Component {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.handleChange('precoBruto')
+                    }}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={2}>
@@ -293,6 +296,9 @@ class OrdemDeServico extends React.Component {
                     formControlProps={{
                       fullWidth: true
                     }}
+                    inputProps={{
+                      onChange: this.handleChange('desconto')
+                    }}
                   />
                 </GridItem>
                 <GridItem xs={12} sm={12} md={2}>
@@ -301,6 +307,9 @@ class OrdemDeServico extends React.Component {
                     id="preco"
                     formControlProps={{
                       fullWidth: true
+                    }}
+                    inputProps={{
+                      onChange: this.handleChange('preco')
                     }}
                   />
                 </GridItem>
@@ -318,52 +327,17 @@ class OrdemDeServico extends React.Component {
               <p className={classes.cardCategoryWhite}></p>
             </CardHeader>
             <CardBody>
-              <Table
+              <OSTable
                 tableHeaderColor="primary"
                 tableHead={this.state.cabecalho}
                 tableData={this.state.ordens}
-                tableActions={[
+                actions={
                   {
-                    labelText: 'imprimir',
-                    header: 'Imprimir',
-                    visible: true,
-                    onClick: event => {
-                      console.log(` imprimir elemento: ${event.target.id}`)
-                    }
-                  },
-                  {
-                    labelText: 'editar',
-                    header: 'Editar',
-                    visible: true,
-                    onClick: event => {
-                      const ordem = { id: event.target.id, cliente: 'Editado' };
-                      editarOrdem(ordem)
-                        .then(ordem => {
-                          this.updateOrdens();
-                          console.log('Ordem Editada');
-                        })
-                        .catch(erro => {
-                          console.log('Erro ao editar Ordem');
-                        })
-                    }
-                  },
-                  {
-                    labelText: 'excluir',
-                    header: 'Excluir',
-                    visible: true,
-                    onClick: event => {
-                      const ordem = { id: event.target.id };
-                      excluirOrdem(ordem)
-                        .then(ordem => {
-                          this.updateOrdens();
-                          console.log('Ordem Excluida');
-                        })
-                        .catch(erro => {
-                          console.log(`Erro ao excluir Ordem`);
-                        })
-                    }
-                  },
-                ]}
+                    onPrint: id => () => { console.log(`onPrint event ${id}`) },
+                    onEdit: id => () => { console.log(`onEdit event ${id}`) },
+                    onDelete: id => () => { console.log(`onDelete event ${id}`) },
+                  }
+                }
               />
             </CardBody>
           </Card>

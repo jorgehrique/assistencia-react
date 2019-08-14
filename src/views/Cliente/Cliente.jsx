@@ -4,6 +4,13 @@ import PropTypes from "prop-types";
 // @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
 // core components
+import IconButton from "@material-ui/core/IconButton";
+
+// @material-ui/icons
+import Edit from "@material-ui/icons/Edit";
+import Close from "@material-ui/icons/Close";
+import Check from "@material-ui/icons/Check";
+
 import GridItem from "components/Grid/GridItem.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
 import Table from "components/Table/Table.jsx";
@@ -97,10 +104,9 @@ class Cliente extends React.Component {
     }), 3000);
   }
 
-  updateFormState = event => {
-    let form = this.state.form;
-    form[event.target.id] = event.target.value;
-    this.setState({ form });
+  handleChange = e => {
+    const { form } = this.state;
+    this.setState({ form: { ...form, [e.target.id]: e.target.value } });
   }
 
   updateEnderecoFields = event => {
@@ -207,7 +213,7 @@ class Cliente extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState,
+                      onChange: this.handleChange,
                       value: this.state.form.nome
                     }}
                   />
@@ -220,7 +226,7 @@ class Cliente extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState,
+                      onChange: this.handleChange,
                       value: this.state.form.cpf
                     }}
                   />
@@ -233,7 +239,7 @@ class Cliente extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.updateFormState,
+                      onChange: this.handleChange,
                       value: this.state.form.email
                     }}
                   />
@@ -332,18 +338,40 @@ class Cliente extends React.Component {
                 tableActions={
                   [
                     {
-                      labelText: 'ver',
                       header: 'Detalhes',
                       visible: true,
+                      render: () => {
+                        return (<IconButton
+                          aria-label="Check"
+                          className={classes.tableActionButton}
+                        >
+                          <Check
+                            className={
+                              classes.tableActionButtonIcon + " " + classes.check
+                            }
+                          />
+                        </IconButton>)
+                      },
                       onClick: event => {
                         const { id } = event.target;
                         console.log(`modal: exibir cliente de id #${id}`);
                       }
                     },
                     {
-                      labelText: 'editar',
                       header: 'Editar',
                       visible: true,
+                      render: () => {
+                        return (<IconButton
+                          aria-label="Edit"
+                          className={classes.tableActionButton}
+                        >
+                          <Edit
+                            className={
+                              classes.tableActionButtonIcon + " " + classes.edit
+                            }
+                          />
+                        </IconButton>)
+                      },
                       onClick: event => {
                         this.limparHandle();
                         const { id } = event.target;
@@ -360,9 +388,20 @@ class Cliente extends React.Component {
                       }
                     },
                     {
-                      labelText: 'excluir',
                       header: 'Excluir',
                       visible: true,
+                      render: () => {
+                        return (<IconButton
+                          aria-label="Close"
+                          className={classes.tableActionButton}
+                        >
+                          <Close
+                            className={
+                              classes.tableActionButtonIcon + " " + classes.close
+                            }
+                          />
+                        </IconButton>)
+                      },
                       onClick: event => {
                         const { id } = event.target;
                         excluirCliente(id)
