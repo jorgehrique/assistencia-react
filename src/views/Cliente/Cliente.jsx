@@ -1,35 +1,24 @@
 import React from "react";
-// nodejs library to set properties for components
 import PropTypes from "prop-types";
-// @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
-// core components
-import IconButton from "@material-ui/core/IconButton";
-
-// @material-ui/icons
-import Edit from "@material-ui/icons/Edit";
-import Close from "@material-ui/icons/Close";
-import Check from "@material-ui/icons/Check";
-
 import GridItem from "components/Grid/GridItem.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
-import Table from "components/Table/Table.jsx";
 import Card from "components/Card/Card.jsx";
 import CardHeader from "components/Card/CardHeader.jsx";
 import CardBody from "components/Card/CardBody.jsx";
 import CustomInput from "components/CustomInput/CustomInput.jsx";
 import Snackbar from "components/Snackbar/Snackbar.jsx";
 import Button from "components/CustomButtons/Button.jsx";
-// import CustomSelect from "components/CustomSelect/CustomSelect.jsx";
+import ClienteTable from "components/Table/ClienteTable";
+
+import { cpfToString, telefoneToString } from "../../utils/FormatConverter";
+import { logError, logObject } from "../../utils/Debug";
 
 import {
   buscarClientes, buscarClientePorId,
   salvarCliente, editarCliente, excluirCliente
 }
   from "../../services/ClienteService";
-
-// import { EventEmitter } from "events";
-// import { parseConfigFileTextToJson } from "typescript";
 
 const styles = {
   cardCategoryWhite: {
@@ -80,12 +69,6 @@ class Cliente extends React.Component {
     this.updateClientes();
   }
 
-  handleScrollToStats = () => {
-    window.scrollTo({
-      top: 0
-    })
-  }
-
   notification = (message, color) => {
     this.setState({
       notification: {
@@ -104,7 +87,7 @@ class Cliente extends React.Component {
     }), 3000);
   }
 
-  handleChange = e => {
+  changeHandle = e => {
     const { form } = this.state;
     this.setState({ form: { ...form, [e.target.id]: e.target.value } });
   }
@@ -131,13 +114,13 @@ class Cliente extends React.Component {
           return Object.values({
             id: c.id,
             nome: c.nome,
-            cpf: c.cpf
+            cpf: cpfToString(c.cpf),
+            telefone: telefoneToString(c.telefones[0]),
           });
         });
 
         this.setState({
-          clientes,
-          cabecalho: ['Id', 'Nome', 'CPF']
+          clientes
         })
       })
       .catch(erro => console.log(erro));
@@ -161,6 +144,45 @@ class Cliente extends React.Component {
         })
         .catch(erro => this.notification(`Erro ao salvar o cliente ${form.nome}`, 'danger'));
     }
+    this.limparHandle();
+  }
+
+  detalhesHandle = id => {
+    buscarClientePorId(id)
+      .then(cliente => {
+        logObject('detalhesHandle', cliente);
+      })
+      .catch(error => {
+        this.notification('Erro ao buscar cliente para edição', 'danger');
+        logError('detalhesHandle', error);
+      });
+  }
+
+  editarHandle = id => {
+    this.limparHandle();
+    buscarClientePorId(id)
+      .then(cliente => {
+        this.setState({
+          form: { editar: true, ...cliente }
+        });
+      })
+      .catch(error => {
+        this.notification('Erro ao buscar cliente para edição', 'danger');
+        logError('editarHandle', error);
+      });
+    //this.handleScrollToStats();
+  }
+
+  deleteHandle = id => {
+    excluirCliente(id)
+      .then(() => {
+        this.updateClientes();
+        this.notification(`Cliente #${id} foi deletado`, 'success');
+      })
+      .catch(error => {
+        this.notification(`Erro ao deletar o cliente #${id}`, 'danger');
+        logError('deleteHandle', error)
+      });
     this.limparHandle();
   }
 
@@ -213,7 +235,7 @@ class Cliente extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.handleChange,
+                      onChange: this.changeHandle,
                       value: this.state.form.nome
                     }}
                   />
@@ -226,7 +248,7 @@ class Cliente extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.handleChange,
+                      onChange: this.changeHandle,
                       value: this.state.form.cpf
                     }}
                   />
@@ -239,7 +261,7 @@ class Cliente extends React.Component {
                       fullWidth: true
                     }}
                     inputProps={{
-                      onChange: this.handleChange,
+                      onChange: this.changeHandle,
                       value: this.state.form.email
                     }}
                   />
@@ -331,92 +353,15 @@ class Cliente extends React.Component {
               <p className={classes.cardCategoryWhite}></p>
             </CardHeader>
             <CardBody>
-              <Table
+              <ClienteTable
                 tableHeaderColor="primary"
-                tableHead={this.state.cabecalho}
                 tableData={this.state.clientes}
-                tableActions={
-                  [
-                    {
-                      header: 'Detalhes',
-                      visible: true,
-                      render: () => {
-                        return (<IconButton
-                          aria-label="Check"
-                          className={classes.tableActionButton}
-                        >
-                          <Check
-                            className={
-                              classes.tableActionButtonIcon + " " + classes.check
-                            }
-                          />
-                        </IconButton>)
-                      },
-                      onClick: event => {
-                        const { id } = event.target;
-                        console.log(`modal: exibir cliente de id #${id}`);
-                      }
-                    },
-                    {
-                      header: 'Editar',
-                      visible: true,
-                      render: () => {
-                        return (<IconButton
-                          aria-label="Edit"
-                          className={classes.tableActionButton}
-                        >
-                          <Edit
-                            className={
-                              classes.tableActionButtonIcon + " " + classes.edit
-                            }
-                          />
-                        </IconButton>)
-                      },
-                      onClick: event => {
-                        this.limparHandle();
-                        const { id } = event.target;
-                        buscarClientePorId(id)
-                          .then(cliente => {
-                            this.setState({
-                              form: { editar: true, ...cliente }
-                            });
-                          })
-                          .catch(erro => {
-                            this.notification('Erro ao buscar cliente para edição', 'danger')
-                          });
-                        this.handleScrollToStats();
-                      }
-                    },
-                    {
-                      header: 'Excluir',
-                      visible: true,
-                      render: () => {
-                        return (<IconButton
-                          aria-label="Close"
-                          className={classes.tableActionButton}
-                        >
-                          <Close
-                            className={
-                              classes.tableActionButtonIcon + " " + classes.close
-                            }
-                          />
-                        </IconButton>)
-                      },
-                      onClick: event => {
-                        const { id } = event.target;
-                        excluirCliente(id)
-                          .then(() => {
-                            this.updateClientes();
-                            this.notification(`Cliente #${id} foi deletado`, 'success');
-                          })
-                          .catch(erro => {
-                            console.log(erro);
-                            this.notification(`Erro ao deletar o cliente #${id}`, 'danger');
-                          });
-                        this.limparHandle();
-                      }
-                    }
-                  ]
+                actions={
+                  {
+                    onDetails: this.detalhesHandle,
+                    onEdit: this.editarHandle,
+                    onDelete: this.deleteHandle,
+                  }
                 }
               />
             </CardBody>

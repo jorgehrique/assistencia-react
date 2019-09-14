@@ -10,6 +10,14 @@ const buscarOrdens = () => {
     });
 };
 
+const buscarOrdemPorId = id => {
+    return new Promise((resolve, reject) => {
+        fetch(`${urlBase}/ordens/${id}`)
+            .then(res => resolve(res.json()))
+            .catch(err => reject(err));
+    });
+}
+
 const buscarCabecalho = () => {
     return new Promise((resolve, reject) => {
         resolve(cabecalho);
@@ -48,28 +56,31 @@ const editarOrdem = ordem => {
     // });
 };
 
-const excluirOrdem = ordem => {
-    // return new Promise((resolve, reject) => {
-    //     const ordens = ordemDeServicos.filter(item => item.id != ordem.id);
-    //     ordemDeServicos = ordens;
-
-    //     resolve(ordem);
-    // });
+const excluirOrdem = id => {
+    return new Promise((resolve, reject) => {
+        fetch(`${urlBase}/ordens/${id}`, {
+            method: 'delete',
+        })
+            .then(res => resolve(res))
+            .catch(error => reject(error));
+    });
 };
 
-const dateConverter = date => {
-    const arr = date.split('T');
-    const data = arr[0].split('-');
-    const hora = arr[1].substring(0, 5);
-    return `${data[2]}/${data[1]}/${data[0]} ${hora}`;
+const buscarPdfPorId = id => {
+    return new Promise((resolve, reject) => {
+        fetch(`${urlBase}/ordens/pdf/${id}`)
+            .then(res => resolve(res))
+            .catch(error => reject(error));
+    });
 }
 
 export {
     buscarOrdens,
+    buscarOrdemPorId,
     buscarCabecalho,
     buscarTipoOrdens,
+    buscarPdfPorId,
     salvarOrdem,
     editarOrdem,
     excluirOrdem,
-    dateConverter,
 }

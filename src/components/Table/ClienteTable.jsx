@@ -1,24 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
-// @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
-
+import tableStyle from "assets/jss/material-dashboard-react/components/tableStyle.jsx";
 import IconButton from "@material-ui/core/IconButton";
-// @material-ui/icons
+
 import Edit from "@material-ui/icons/Edit";
 import Delete from "@material-ui/icons/DeleteRounded";
-import Print from "@material-ui/icons/Print";
+import Assignment from "@material-ui/icons/Assignment";
 
-// core components
-import tableStyle from "assets/jss/material-dashboard-react/components/tableStyle.jsx";
+const tableHead = ['Id', 'Nome', 'CPF', 'Telefone', 'Detalhes', 'Editar', 'Excluir'];
 
 function CustomTable({ ...props }) {
-    const { classes, tableHead, tableData, tableHeaderColor, actions } = props;
+    const { classes, tableData, tableHeaderColor, actions } = props;
     return (
         <div className={classes.tableResponsive}>
             <Table className={classes.table}>
@@ -54,43 +52,53 @@ function CustomTable({ ...props }) {
                                         );
                                     })
                                 }
-                                <TableCell className={classes.tableCell}>
-                                    <IconButton onClick={() => actions.onPrint(itemId)}
-                                        aria-label="Print"
+                                <TableCell
+                                    className={classes.tableCell + " " + classes.tableHeadCell}
+                                    key={key}
+                                >
+                                    <IconButton onClick={() => actions.onDetails(itemId)}
+                                        aria-label="Assignment"
                                         className={classes.tableActionButton}
                                     >
-                                        <Print className=
-                                            {
-                                                classes.tableActionButtonIcon + " " + classes.print
-                                            }
-                                        />
-                                    </IconButton>
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                    <IconButton onClick={() => actions.onEdit(itemId)}
-                                        aria-label="Edit"
-                                        className={classes.tableActionButton}
-                                    >
-                                        <Edit className=
-                                            {
-                                                classes.tableActionButtonIcon + " " + classes.edit
-                                            }
-                                        />
-                                    </IconButton>
-                                </TableCell>
-                                <TableCell className={classes.tableCell}>
-                                    <IconButton onClick={() => actions.onDelete(itemId)}
-                                        aria-label="Delete"
-                                        className={classes.tableActionButton}
-                                    >
-                                        <Delete className=
-                                            {
-                                                classes.tableActionButtonIcon + " " + classes.delete
+                                        <Assignment
+                                            className={
+                                                classes.tableActionButtonIcon + " " + classes.assignment
                                             }
                                         />
                                     </IconButton>
                                 </TableCell>
 
+                                <TableCell
+                                    className={classes.tableCell + " " + classes.tableHeadCell}
+                                    key={key}
+                                >
+                                    <IconButton onClick={() => actions.onEdit(itemId)}
+                                        aria-label="Edit"
+                                        className={classes.tableActionButton}
+                                    >
+                                        <Edit
+                                            className={
+                                                classes.tableActionButtonIcon + " " + classes.edit
+                                            }
+                                        />
+                                    </IconButton>
+                                </TableCell>
+
+                                <TableCell
+                                    className={classes.tableCell + " " + classes.tableHeadCell}
+                                    key={key}
+                                >
+                                    <IconButton onClick={() => actions.onDelete(itemId)}
+                                        aria-label="Delete"
+                                        className={classes.tableActionButton}
+                                    >
+                                        <Delete
+                                            className={
+                                                classes.tableActionButtonIcon + " " + classes.delete
+                                            }
+                                        />
+                                    </IconButton>
+                                </TableCell>
                             </TableRow>
                         );
                     })}
