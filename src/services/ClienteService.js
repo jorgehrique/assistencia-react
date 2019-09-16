@@ -1,4 +1,4 @@
-const urlBase = 'http://localhost:8080';
+const urlBase = 'https://morning-escarpment-50967.herokuapp.com/';
 
 const buscarClientes = () => {
     return new Promise((resolve, reject) => {
